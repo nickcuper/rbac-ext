@@ -1,6 +1,21 @@
-assets/*
-!assets/.gitignore
-protected/runtime/*
-!protected/runtime/.gitignore
-protected/data/*.db
-themes/classic/views/
+/web/assets/*
+!/web/assets/.htaccess
+
+# Yii runtime dir
+/runtime/*
+!/runtime/cache
+/runtime/cache/*
+# Svn files
+.svn
+# Windows folder metadata
+desktop.ini
+Thumbs.db
+# OpenOffice.org lock files
+.~lock.*
+# NetBeans Project private files
+/nbproject
+/nbproject/private/*
+# PhpStorm project files
+/.idea
+# Composer vendor files
+/vendor/
