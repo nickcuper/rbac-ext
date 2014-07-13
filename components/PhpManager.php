@@ -27,7 +27,7 @@ class PhpManager extends \yii\rbac\PhpManager
     {
             $assignments = $this->getAssignments($userId);
             $_recAR = $this->checkAccessRecursive($userId, $permissionName, $params, $assignments);
-            
+
             if (sizeof($params) && $this->_isExecurerule !== null) {
                 return $this->_isExecurerule;
             } else return $_recAR;
@@ -113,7 +113,7 @@ class PhpManager extends \yii\rbac\PhpManager
     }
 
     /**
-     * Explode every Access Action (allow|deny)
+     * Explode params (allow|deny)
      * @param array $rules
      */
     protected function preppareRules(&$rules, $role)
