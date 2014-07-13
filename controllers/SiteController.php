@@ -6,6 +6,7 @@ use Yii;
 use yii\web\Controller;
 use yii\web\HttpException;
 use yii\widgets\ActiveForm;
+use app\models\User;
 use app\models\Posts;
 use app\models\LoginForm;
 
@@ -17,16 +18,16 @@ class SiteController extends Controller
 		return [
 			'access' => [
 				'class' => 'yii\filters\AccessControl',
-				'only' => ['save', 'delete', 'logout'],
+				'only' => ['create', 'rbac', 'update', 'delete'],
 				'rules' => [
                                 [
-                                        'actions' => ['index', 'save', 'delete', 'view'],
+                                        'actions' => ['rbac', 'update', 'index', 'delete', 'view'],
                                         'allow' => true,
                                         'roles' => ['@'],
                                 ],
 				],
 			]
-                    
+
 		];
 	}*/
 
@@ -44,12 +45,14 @@ class SiteController extends Controller
 		$this->layout = 'signin';
 
 		if (!\Yii::$app->user->isGuest) {
-                           return $this->redirect(\Yii::$app->urlManager->createUrl('site/index'));
+                        return $this->redirect(\Yii::$app->urlManager->createUrl('site/index'));
 		}
 
 		$model = new LoginForm();
-		if ($model->load(Yii::$app->request->post()) && $model->login()) {
-			return $this->goBack();
+		if ($model->load(Yii::$app->request->post()) && $model->login())
+                {
+                        return $this->redirect(\Yii::$app->urlManager->createUrl('site/index'));
+
 		} else {
 			return $this->render('login', [
 				'model' => $model,
@@ -76,12 +79,12 @@ class SiteController extends Controller
 	 * Handles update of our models
 	 * @param int $id 	The $id of the model we want to updated
 	 */
-	public function actionUpdate($id=NULL)
+	public function actionUpdate($id=null)
 	{
-            if (!\Yii::$app->user->can('updatePost', ['post' => $id])) throw new HttpException(403, 'You are not authorize');
-            
+                if (!Yii::$app->user->can('updatePost', ['post' => $id])) throw new HttpException(403, 'You are not authorize');
+
                 $model = $this->loadModel($id);
-                
+
 		if (isset($_POST['Posts']))
 		{
 			if ($model->load(Yii::$app->request->post()) && $model->save())
@@ -95,16 +98,17 @@ class SiteController extends Controller
 
 		return $this->render('save', ['model' => $model]);
 	}
-        
+
 	/**
 	 * Create new record
 	 */
 	public function actionCreate()
 	{
-                if (!\Yii::$app->user->can('createPost')) throw new HttpException(403, 'You are not authorize');
-                
+
+                if (!Yii::$app->user->can('createPost')) throw new HttpException(403, 'You are not authorize');
+
                 $model = new Posts;
-		
+
 		if (isset($_POST['Posts']))
 		{
 			if ($model->load(Yii::$app->request->post()) && $model->save())
@@ -118,28 +122,54 @@ class SiteController extends Controller
 
 		return $this->render('save', ['model' => $model]);
 	}
-        
+
 	/**
-	 * Handles deletion of our models
-	 * @param int $id 	The $id of the model we want to delete
+	 * Handles view of our models
+	 * @param int $id 	The $id of the model we want to view
 	 */
-	public function actionView($id=NULL)
+	public function actionView($id=null)
 	{
-                if(!\Yii::$app->user->can('viewPost')) throw new HttpException(403, 'You are not authorize');
-		
+
+                if(!Yii::$app->user->can('viewPost', ['post' => $id])) throw new HttpException(403, 'You are not authorize');
+
 		$model = $this->loadModel($id);
 
 		return $this->render('view', ['model' => $model]);
 	}
 
 	/**
+	 * Edit rules
+	 * @param string $action 	The $id of the model we want to delete
+	 */
+	public function actionRbac($action='viewPost')
+	{
+
+                if(!Yii::$app->user->can('rbacPost')) throw new HttpException(403, 'You are not authorize');
+
+		$mAuth = Yii::$app->authManager;
+
+                $permisions = $mAuth->getPermissionsByRole('rbac');
+                $ruleName = str_replace('Post','',$action);
+
+                if (isset($_POST['Rbac']) )
+                {
+                    if ($mAuth->customUpdateRule($_POST['Rbac'], $ruleName)) {
+                            Yii::$app->session->setFlash('success', 'RBAC Rules was success update');
+                    }
+
+                }
+
+		return $this->render('rbac', ['model' => $mAuth, 'action' => $action, 'ruleName' => $ruleName]);
+	}
+
+	/**
 	 * Handles deletion of our models
 	 * @param int $id 	The $id of the model we want to delete
 	 */
-	public function actionDelete($id=NULL)
+	public function actionDelete($id=null)
 	{
-                if(!\Yii::$app->user->can('deletePost')) throw new HttpException(403, 'You are not authorize');
-                    
+                if(!\Yii::$app->user->can('deletePost', ['post' => $id])) throw new HttpException(403, 'You are not authorize');
+
 		$model = $this->loadModel($id);
 
 		if (!$model->delete())

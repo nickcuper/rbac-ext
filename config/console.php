@@ -12,7 +12,7 @@ return [
         ],
         // UserIdentity
         'user' => [
-                 'class' => 'yii\web\User',
+                'class' => 'app\components\User',
                 'identityClass' => 'app\models\User',
         ],
         // Database
@@ -26,16 +26,16 @@ return [
         'authManager' => [
                 'class' => 'app\components\PhpManager',
                 'defaultRoles' => ['guest'],
-                
+
         ],
-        /*'log' => [
+        'log' => [
             'targets' => [
                 [
                     'class' => 'yii\log\FileTarget',
                     'levels' => ['error', 'warning'],
                 ],
             ],
-        ],*/
+        ],
     ],
     'params' => [],
 ];

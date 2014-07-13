@@ -7,29 +7,30 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
         const  ROLE_GUEST = 0;
         const  ROLE_AUTHOR = 1;
         const  ROLE_ADMIN = 2;
-        
+        const  ROLE_RBAC = 3; //can edit only rbac rules
+
         /** @var integer $id **/
 	public $id;
-        
+
         /** @var string $username **/
 	public $username;
-        
+
         /** @var string $name **/
 	public $name;
-        
+
         /** @var string $password **/
 	public $password;
-        
+
         /** @var integer $role **/
 	public $role;
-        
+
         /** @var string $password **/
 	public $authKey;
-        
+
         /** @var array $users **/
 	private static $users = [
 		'100' => [
-			'id' => '100',
+			'id' => 100,
 			'name' => 'admin',
 			'username' => 'admin',
 			'password' => 'admin',
@@ -37,21 +38,31 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
 			'authKey' => 'test100key',
 		],
 		'101' => [
-			'id' => '101',
+			'id' => 101,
 			'name' => 'demo',
 			'username' => 'demo',
 			'password' => 'demo',
 			'role' => self::ROLE_AUTHOR,
 			'authKey' => 'test101key',
 		],
+		'102' => [
+			'id' => 102,
+			'name' => 'rbac',
+			'username' => 'rbac',
+			'password' => 'rbac',
+			'role' => self::ROLE_RBAC,
+			'authKey' => 'test102key',
+		],
 	];
-        
+
         /** @var array $roles **/
 	private static $roles = [
 		self::ROLE_ADMIN => ['name'=> 'admin'],
 		self::ROLE_AUTHOR => ['name'=> 'author'],
+		self::ROLE_RBAC => ['name'=> 'rbac'],
+		self::ROLE_GUEST => ['name'=> 'guest'],
 	];
-        
+
         /**
          * @param integer $id
          * @return array|null
@@ -60,7 +71,7 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
 	{
 		return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
 	}
-        
+
         /**
          * @param string $username
          * @return \static|null
@@ -74,7 +85,7 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
 		}
 		return null;
 	}
-        
+
         /**
 	 * @inheritdoc
 	 */
@@ -82,12 +93,12 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
 	{
 		throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
 	}
-        
+
 	public function getId()
 	{
 		return $this->id;
 	}
-        
+
         /**
          * Return role name
          * @param integer $roleId
@@ -112,4 +123,6 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
 	{
 		return $this->password === $password;
 	}
+
+
 }

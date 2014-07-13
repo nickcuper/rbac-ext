@@ -29,10 +29,14 @@ AppAsset::register($this);
 				'class' => 'navbar-inverse navbar-fixed-top',
 			],
 		]);
+                $menuItem = [[
+                            'label' => Yii::t('app', 'RBAC Rules'),
+                            'url' => ['site/rbac']
+                        ],];
                 if (Yii::$app->user->isGuest) {
                     $menuItems = [
                         [
-                            'label' => Yii::t('app', 'Login'), 
+                            'label' => Yii::t('app', 'Login'),
                             'url' => ['site/login']
                         ],
                     ];
@@ -48,10 +52,10 @@ AppAsset::register($this);
                 }
                 echo Nav::widget([
                     'options' => ['class' => 'navbar-nav navbar-right'],
-                    'items' => $menuItems,
+                    'items' => array_merge($menuItem,$menuItems),
                     'encodeLabels'=>false,
                 ]);
-                
+
 		NavBar::end();
 	?>
 
@@ -70,8 +74,8 @@ AppAsset::register($this);
 
 	<footer class="footer">
 		<div class="container">
-			
-			
+
+
 		</div>
 	</footer>
 

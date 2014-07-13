@@ -51,8 +51,13 @@ class LoginForm extends Model
 	{
 		if ($this->validate()) {
                         // the following three lines were added:
-			return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600*24*30 : 0);
-                        
+                        $isLogin = Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600*24*30 : 0);
+
+                       /* if ($isLogin)
+                            $this->rbacAssignRole();*/
+
+			return $isLogin;
+
 		} else {
 			return false;
 		}
@@ -69,5 +74,23 @@ class LoginForm extends Model
 			$this->_user = User::findByUsername($this->username);
 		}
 		return $this->_user;
+	}
+
+        private function rbacAssignRole()
+        {
+                $model = $this->getUser();
+                $auth = Yii::$app->authManager;
+                $role = $auth->getRole($this->getRole());
+
+                if ($role)
+                    $auth->assign($role, Yii::$app->user->getId());
+        }
+
+        private function getRole()
+	{
+		if ($this->_user !== false) {
+			return $this->_user = User::getRole($this->_user->role)->name;
+		}
+		return false;
 	}
 }
