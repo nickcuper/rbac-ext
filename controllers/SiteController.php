@@ -85,15 +85,13 @@ class SiteController extends Controller
 
                 $model = $this->loadModel($id);
 
-		if (isset($_POST['Posts']))
+		if (isset($_POST['Posts'])) 
 		{
-			if ($model->load(Yii::$app->request->post()) && $model->save())
-			{
+			if ($model->load(Yii::$app->request->post()) && $model->save()) {
 				Yii::$app->session->setFlash('success', 'Model has been saved');
 				return $this->redirect(\Yii::$app->urlManager->createUrl('site/index'));
 			}
-			else
-				Yii::$app->session->setFlash('error', 'Model could not be saved');
+			Yii::$app->session->setFlash('error', 'Model could not be saved');
 		}
 
 		return $this->render('save', ['model' => $model]);
@@ -104,20 +102,17 @@ class SiteController extends Controller
 	 */
 	public function actionCreate()
 	{
-
                 if (!Yii::$app->user->can('createPost')) throw new HttpException(403, 'You are not authorize');
 
                 $model = new Posts;
 
 		if (isset($_POST['Posts']))
 		{
-			if ($model->load(Yii::$app->request->post()) && $model->save())
-			{
+			if ($model->load(Yii::$app->request->post()) && $model->save()) {
 				Yii::$app->session->setFlash('success', 'Model has been saved');
 				return $this->redirect(\Yii::$app->urlManager->createUrl('site/index'));
 			}
-			else
-				Yii::$app->session->setFlash('error', 'Model could not be saved');
+			Yii::$app->session->setFlash('error', 'Model could not be saved');
 		}
 
 		return $this->render('save', ['model' => $model]);
@@ -127,14 +122,13 @@ class SiteController extends Controller
 	 * Handles view of our models
 	 * @param int $id 	The $id of the model we want to view
 	 */
-	public function actionView($id=null)
+	public function actionView($id)
 	{
+                if (!Yii::$app->user->can('viewPost', ['post' => $id])) throw new HttpException(403, 'You are not authorize');
 
-                if(!Yii::$app->user->can('viewPost', ['post' => $id])) throw new HttpException(403, 'You are not authorize');
-
-		$model = $this->loadModel($id);
-
-		return $this->render('view', ['model' => $model]);
+		return $this->render('view', [
+			'model' => $this->loadModel($id)
+		]);
 	}
 
 	/**
@@ -143,38 +137,39 @@ class SiteController extends Controller
 	 */
 	public function actionRbac($action='viewPost')
 	{
+                if (!Yii::$app->user->can('rbacPost')) throw new HttpException(403, 'You are not authorize');
 
-                if(!Yii::$app->user->can('rbacPost')) throw new HttpException(403, 'You are not authorize');
-
-		$mAuth = Yii::$app->authManager;
-
-                $permisions = $mAuth->getPermissionsByRole('rbac');
+		$authManager = Yii::$app->authManager;
+                $permisions = $authManager->getPermissionsByRole('rbac');
                 $ruleName = str_replace('Post','',$action);
 
-                if (isset($_POST['Rbac']) )
+                if (array_key_exists('Rbac', $_POST) &&
+                	$authManager->customUpdateRule($_POST['Rbac'], $ruleName)) 
                 {
-                    if ($mAuth->customUpdateRule($_POST['Rbac'], $ruleName)) {
-                            Yii::$app->session->setFlash('success', 'RBAC Rules was success update');
-                    }
-
+                       Yii::$app->session->setFlash('success', 'RBAC Rules was success update');
                 }
 
-		return $this->render('rbac', ['model' => $mAuth, 'action' => $action, 'ruleName' => $ruleName]);
+		return $this->render('rbac', [
+			'model' => $authManager, 
+			'action' => $action, 
+			'ruleName' => $ruleName
+		]);
 	}
 
 	/**
 	 * Handles deletion of our models
 	 * @param int $id 	The $id of the model we want to delete
 	 */
-	public function actionDelete($id=null)
+	public function actionDelete($id)
 	{
-                if(!\Yii::$app->user->can('deletePost', ['post' => $id])) throw new HttpException(403, 'You are not authorize');
+                if (!\Yii::$app->user->can('deletePost', ['post' => $id])) throw new HttpException(403, 'You are not authorize');
 
 		$model = $this->loadModel($id);
 
-		if (!$model->delete())
+		if (!$model->delete()) {
 			Yii::$app->session->setFlash('error', 'Unable to delete model');
-
+		}
+			
 		$this->redirect(\Yii::$app->urlManager->createUrl('site/index'));
 	}
 
