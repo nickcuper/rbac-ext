@@ -23,21 +23,19 @@ class PrivateRule extends Rule
      */
     public function execute($user, $item, $params)
     {
+        if (\Yii::$app->user->isGuest) return null;
 
-            if (\Yii::$app->user->isGuest) return null;
+        $roleName = \app\models\User::getRole(\Yii::$app->user->getIdentity()->role)->name;
 
-            $roleName = \app\models\User::getRole(\Yii::$app->user->getIdentity()->role)->name;
-
-            if (isset($roleName) && isset($this->private_id[$roleName]))
-            {
-
-                    if (isset($this->private_id[$roleName]['deny']) && in_array($params['post'], $this->private_id[$roleName]['deny'])) {
-                            return false;
-                    } else if (isset($this->private_id[$roleName]['allow']) && in_array($params['post'], $this->private_id[$roleName]['allow'])) {
-                            return true;
-                    } else return true;
-            }
-            return true;
+        if ($roleName && 
+            isset($this->private_id[$roleName]) && 
+            array_key_exists('deny', $this->private_id[$roleName]) && 
+            in_array($params['post'], $this->private_id[$roleName]['deny'])
+        ) {
+                return false;
+        }
+        
+        return true;
     }
 
 }
