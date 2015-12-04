@@ -13,24 +13,6 @@ use app\models\LoginForm;
 class SiteController extends Controller
 {
 
-	/*public function behaviors()
-	{
-		return [
-			'access' => [
-				'class' => 'yii\filters\AccessControl',
-				'only' => ['create', 'rbac', 'update', 'delete'],
-				'rules' => [
-                                [
-                                        'actions' => ['rbac', 'update', 'index', 'delete', 'view'],
-                                        'allow' => true,
-                                        'roles' => ['@'],
-                                ],
-				],
-			]
-
-		];
-	}*/
-
 	public function actions()
 	{
 		return [
@@ -43,21 +25,18 @@ class SiteController extends Controller
 	public function actionLogin()
 	{
 		$this->layout = 'signin';
-
 		if (!\Yii::$app->user->isGuest) {
-                        return $this->redirect(\Yii::$app->urlManager->createUrl('site/index'));
+                	return $this->redirect(\Yii::$app->urlManager->createUrl('site/index'));
 		}
 
 		$model = new LoginForm();
-		if ($model->load(Yii::$app->request->post()) && $model->login())
-                {
-                        return $this->redirect(\Yii::$app->urlManager->createUrl('site/index'));
-
-		} else {
-			return $this->render('login', [
-				'model' => $model,
-			]);
-		}
+		if ($model->load(Yii::$app->request->post()) && $model->login()) {
+                	return $this->redirect(\Yii::$app->urlManager->createUrl('site/index'));
+		} 
+		
+		return $this->render('login', [
+			'model' => $model,
+		]);
 	}
 
 	public function actionLogout()
@@ -72,7 +51,7 @@ class SiteController extends Controller
 	public function actionIndex()
 	{
 		$models = Posts::find()->all();
-		return $this->render('index', array('models' => $models));
+		return $this->render('index', ['models' => $models]);
 	}
 
 	/**
